@@ -15,12 +15,12 @@ def awsCredentials = [[$class: 'AmazonWebServicesCredentialsBinding',
 */
 
 def testStepName(config) {
-  "TEST distro ${config.distro}" 
+  "TEST distro ${config['distro']}" 
 }
 
 def testStepBody(config) {
   { ->
-    sh("make DISTRO=${config.distro} TESTNAME=E2E-CI-${BRANCH_NAME}-BUILD-${BUILD_ID} AWS_KEY_NAME=docker-qa ci")
+    sh("make DISTRO=${config['distro']} TESTNAME=E2E-CI-${BRANCH_NAME}-BUILD-${BUILD_ID} AWS_KEY_NAME=docker-qa ci")
   }
 }
 
