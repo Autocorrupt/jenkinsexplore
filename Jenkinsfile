@@ -13,7 +13,7 @@ def reportFailureToSlack() {
         if (isMasterBranch()) {
            // slackSend(failOnError: false, tokenCredentialId: 'slack-token-ducp-feed',
            //         color: "danger", channel: '#quality', message: message)
-           echo("${message}")
+           echo("SLACK WOULD BE: ${message}")
         }
 }
 
