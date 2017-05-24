@@ -6,10 +6,10 @@ def isMasterBranch() {
    true
 }
 
-this.commitDescription = "undetermined"
+commitDescription = "undetermined"
 
 def reportFailureToSlack() {
-    def message = "${this.commitDescription}\nFAILED - See <${env.BUILD_URL}/console|the Jenkins console for job ${env.BUILD_ID}>"
+    def message = "${commitDescription}\nFAILED - See <${env.BUILD_URL}/console|the Jenkins console for job ${env.BUILD_ID}>"
         if (isMasterBranch()) {
            // slackSend(failOnError: false, tokenCredentialId: 'slack-token-ducp-feed',
            //         color: "danger", channel: '#quality', message: message)
@@ -73,7 +73,7 @@ try {
         node() {
             // TODO: move checkout to 'build' stag
             checkout scm
-            this.commitDescription = sh(returnStdout: true, script: 'git show -s --pretty=format:"%h: %an: %s" HEAD')
+            commitDescription = sh(returnStdout: true, script: 'git show -s --pretty=format:"%h: %an: %s" HEAD')
             parallel(steps) 
         }
     }
