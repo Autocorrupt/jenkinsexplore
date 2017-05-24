@@ -3,7 +3,18 @@
 properties([buildDiscarder(daysToKeepStr: '30')])
 
 def isMasterBranch() {
-  env.BRANCH_NAME == 'master'
+   true
+}
+
+commitDescription = "undetermined"
+
+def reportFailureToSlack() {
+    def message = "${commitDescription}\nFAILED - See <${env.BUILD_URL}/console|the Jenkins console for job ${env.BUILD_ID}>"
+        if (isMasterBranch()) {
+           // slackSend(failOnError: false, tokenCredentialId: 'slack-token-ducp-feed',
+           //         color: "danger", channel: '#quality', message: message)
+           echo("SLACK WOULD BE: ${message}")
+        }
 }
 
 /*
@@ -27,6 +38,7 @@ def testStepBody(config) {
   }
 }
 
+def gitLogStr
 
 // Returns a [name:closure] entry suitable for parallel()
 def testStep(config) {
@@ -61,18 +73,15 @@ try {
         node() {
             // TODO: move checkout to 'build' stag
             checkout scm
-                parallel(steps) 
+            commitDescription = sh(returnStdout: true, script: 'git show -s --pretty=format:"%h: %an: %s" HEAD')
+            parallel(steps) 
         }
     }
 } catch(err) {
    echo("SEND SLACK HERE")
-   message = """
-${env.CHANGE_AUTHOR}: <${env.CHANGE_URL}|PR: ${env.CHANGE_ID}> ${env.CHANGE_TITLE}
-FAILED - See <${env.BUILD_URL}/console|the Jenkins console for job ${env.BUILD_ID}>
-"""
    echo("Error: ${err}")
-   echo("Slack message: ${message}")
-
+   echo("Git log: ${gitLogStr}")
+   reportFailureToSlack() 
    throw err
 }
 
