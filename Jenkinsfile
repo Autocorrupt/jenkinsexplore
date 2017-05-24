@@ -73,7 +73,7 @@ FAILED - See <${env.BUILD_URL}/console|the Jenkins console for job ${env.BUILD_I
    echo("Error: ${err}")
    echo("Slack message: ${message}")
 
-   echo("Dump of currentBuild: ${currentBuild}")
+   echo("Dump of currentBuild: ${currentBuild.changesets}")
    throw err
 }
 
