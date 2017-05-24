@@ -27,6 +27,7 @@ def testStepBody(config) {
   }
 }
 
+def gitLogStr
 
 // Returns a [name:closure] entry suitable for parallel()
 def testStep(config) {
@@ -61,19 +62,14 @@ try {
         node() {
             // TODO: move checkout to 'build' stag
             checkout scm
-                parallel(steps) 
+            gitLogStr = sh(returnStdout: true, script: 'git show -s --pretty=format:"%h: %an: %s" HEAD')
+            parallel(steps) 
         }
     }
 } catch(err) {
    echo("SEND SLACK HERE")
-   message = """
-${env.CHANGE_AUTHOR}: <${env.CHANGE_URL}|PR: ${env.CHANGE_ID}> ${env.CHANGE_TITLE}
-FAILED - See <${env.BUILD_URL}/console|the Jenkins console for job ${env.BUILD_ID}>
-"""
    echo("Error: ${err}")
-   echo("Slack message: ${message}")
-
-   echo("Dump of currentBuild: ${currentBuild.changesets}")
+   echo("Git log: ${gitLogStr}")
    throw err
 }
 
