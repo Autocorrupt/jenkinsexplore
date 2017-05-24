@@ -3,7 +3,18 @@
 properties([buildDiscarder(daysToKeepStr: '30')])
 
 def isMasterBranch() {
-  env.BRANCH_NAME == 'master'
+   true
+}
+
+def commitDescription = "undetermined"
+
+def reportFailureToSlack() {
+    def message = "${commitDescription}\nFAILED - See <${env.BUILD_URL}/console|the Jenkins console for job ${env.BUILD_ID}>"
+        if (isMasterBranch()) {
+           // slackSend(failOnError: false, tokenCredentialId: 'slack-token-ducp-feed',
+           //         color: "danger", channel: '#quality', message: message)
+           echo("${message}")
+        }
 }
 
 /*
@@ -62,7 +73,7 @@ try {
         node() {
             // TODO: move checkout to 'build' stag
             checkout scm
-            gitLogStr = sh(returnStdout: true, script: 'git show -s --pretty=format:"%h: %an: %s" HEAD')
+            commitDescription = sh(returnStdout: true, script: 'git show -s --pretty=format:"%h: %an: %s" HEAD')
             parallel(steps) 
         }
     }
@@ -70,6 +81,7 @@ try {
    echo("SEND SLACK HERE")
    echo("Error: ${err}")
    echo("Git log: ${gitLogStr}")
+   reportFailureToSlack() 
    throw err
 }
 
